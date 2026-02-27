@@ -18,6 +18,94 @@
       padding: 20px;
     }
 
+    /* ── Intro Overlay ── */
+    .intro-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      z-index: 100;
+      transition: opacity 0.4s ease;
+    }
+
+    .intro-overlay.hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .intro-ring {
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(168, 164, 240, 0.5);
+      animation: ringExpand 1.8s ease-out infinite;
+    }
+    .intro-ring:nth-child(2) { animation-delay: 0.6s; }
+    .intro-ring:nth-child(3) { animation-delay: 1.2s; }
+
+    @keyframes ringExpand {
+      0%   { transform: scale(0.4); opacity: 0.9; }
+      100% { transform: scale(3.5); opacity: 0; }
+    }
+
+    .intro-glow {
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(168, 164, 240, 0.35) 0%, transparent 70%);
+      animation: glowExpand 3s ease forwards;
+    }
+
+    @keyframes glowExpand {
+      0%   { transform: scale(0); opacity: 0; }
+      30%  { transform: scale(1); opacity: 1; }
+      75%  { transform: scale(1.5); opacity: 0.8; }
+      100% { transform: scale(7); opacity: 0; }
+    }
+
+    .intro-cross {
+      font-size: 84px;
+      color: #fff;
+      text-shadow:
+        0 0 20px #a8a4f0,
+        0 0 60px #a8a4f0,
+        0 0 120px rgba(168, 164, 240, 0.6);
+      animation: crossAnim 3s ease forwards;
+      position: relative;
+      z-index: 2;
+    }
+
+    @keyframes crossAnim {
+      0%   { opacity: 0; transform: scale(0.2) rotate(-15deg); filter: blur(10px); }
+      20%  { opacity: 1; transform: scale(1.2) rotate(0deg); filter: blur(0); }
+      55%  { transform: scale(1) rotate(0deg); }
+      80%  { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(6); opacity: 0; filter: blur(8px); }
+    }
+
+    .intro-label {
+      font-size: 1.25rem;
+      letter-spacing: 0.4em;
+      color: rgba(255, 255, 255, 0.85);
+      margin-top: 30px;
+      position: relative;
+      z-index: 2;
+      animation: labelAnim 3s ease forwards;
+    }
+
+    @keyframes labelAnim {
+      0%   { opacity: 0; transform: translateY(18px); }
+      25%  { opacity: 1; transform: translateY(0); }
+      70%  { opacity: 1; }
+      100% { opacity: 0; transform: translateY(-10px); }
+    }
+
+    /* ── Card ── */
     .container {
       max-width: 640px;
       width: 100%;
@@ -33,6 +121,14 @@
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
       position: relative;
       overflow: hidden;
+      opacity: 0;
+      transform: translateY(24px) scale(0.97);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .card.reveal {
+      opacity: 1;
+      transform: translateY(0) scale(1);
     }
 
     .cross {
@@ -85,50 +181,26 @@
       border-color: rgba(168, 240, 184, 0.3);
     }
 
-    .loading .verse-text {
-      color: rgba(255, 255, 255, 0.5);
-      font-size: 1rem;
-      font-style: italic;
-    }
-
-    .loading .verse-text::after {
-      content: '...';
-      animation: dots 1.5s steps(4, end) infinite;
-    }
-
-    @keyframes dots {
-      0%, 20% { content: ''; }
-      40% { content: '.'; }
-      60% { content: '..'; }
-      80%, 100% { content: '...'; }
-    }
-
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
-    .fade-in { animation: fadeIn 0.5s ease forwards; }
+    .fade-in { animation: fadeIn 0.8s ease forwards; }
 
-    /* Confetti animation */
+    /* ── Firework / Confetti ── */
     .confetti {
-      position: fixed;
-      width: 10px;
-      height: 10px;
-      background: #a8a4f0;
       position: absolute;
-      animation: confetti-fall 1.5s ease-out forwards;
+      width: 9px;
+      height: 9px;
+      border-radius: 2px;
+      animation: confettiFall 3s ease-out forwards;
     }
 
-    @keyframes confetti-fall {
-      0% {
-        transform: translateY(0) rotate(0deg);
-        opacity: 1;
-      }
-      100% {
-        transform: translateY(300px) rotate(360deg);
-        opacity: 0;
-      }
+    @keyframes confettiFall {
+      0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+      60%  { opacity: 1; }
+      100% { transform: translateY(340px) rotate(560deg) scale(0.4); opacity: 0; }
     }
 
     .sparkle {
@@ -142,35 +214,17 @@
     .sparkle::after {
       content: '✨';
       position: absolute;
-      font-size: 24px;
-      animation: sparkle-fade 1s ease-out forwards;
+      font-size: 28px;
+      animation: sparkleFade 3s ease-out forwards;
     }
 
-    .sparkle::before {
-      top: -20px;
-      left: 20%;
-      animation-delay: 0.1s;
-    }
+    .sparkle::before { top: -20px; left: 15%;  animation-delay: 0.1s; }
+    .sparkle::after  { top: -20px; right: 15%; animation-delay: 0.35s; }
 
-    .sparkle::after {
-      top: -20px;
-      right: 20%;
-      animation-delay: 0.3s;
-    }
-
-    @keyframes sparkle-fade {
-      0% {
-        opacity: 0;
-        transform: translateY(0) scale(0.5);
-      }
-      50% {
-        opacity: 1;
-        transform: translateY(-20px) scale(1);
-      }
-      100% {
-        opacity: 0;
-        transform: translateY(-40px) scale(0.5);
-      }
+    @keyframes sparkleFade {
+      0%   { opacity: 0; transform: translateY(0) scale(0.5); }
+      35%  { opacity: 1; transform: translateY(-28px) scale(1.2); }
+      100% { opacity: 0; transform: translateY(-60px) scale(0.5); }
     }
 
     .footer {
@@ -184,10 +238,20 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
+
+  <!-- 3초 인트로 오버레이 -->
+  <div class="intro-overlay" id="intro">
+    <div class="intro-ring"></div>
+    <div class="intro-ring"></div>
+    <div class="intro-ring"></div>
+    <div class="intro-glow"></div>
+    <div class="intro-cross">✝</div>
+    <div class="intro-label">오늘의 말씀</div>
+  </div>
+
   <div class="container">
     <div class="card" id="card">
       <div class="cross">&#10013;</div>
-
       <div class="verse-text" id="verseText"></div>
       <div class="verse-ref" id="verseRef"></div>
       <button class="copy-btn" id="copyBtn" onclick="copyVerse()" style="display:none;">
@@ -203,8 +267,6 @@
 
   <script>
     const API = 'https://bible.helloao.org/api/kor_old';
-
-    // ── Curated verse lists by category ──
 
     const VERSES = {
       comfort: [
@@ -295,8 +357,6 @@
       ],
     };
 
-    // ── Combine all verses into one array ──
-
     const ALL_VERSES = [
       ...VERSES.comfort,
       ...VERSES.faith,
@@ -304,87 +364,104 @@
       ...VERSES.praise
     ];
 
-    // ── Fetch & display ──
+    // ── 인트로 3초 + API 병렬 실행 ──
 
     async function loadRandomVerse() {
-      const textEl = document.getElementById('verseText');
-      const refEl = document.getElementById('verseRef');
-      const card = document.getElementById('card');
+      const pick = ALL_VERSES[Math.floor(Math.random() * ALL_VERSES.length)];
 
-      textEl.textContent = '말씀을 찾고 있습니다';
-      refEl.textContent = '';
-      card.classList.add('loading');
-
+      let data, fetchError;
       try {
-        const pick = ALL_VERSES[Math.floor(Math.random() * ALL_VERSES.length)];
-
-        const res = await fetch(`${API}/${pick.b}/${pick.c}.json`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-
-        const verse = data.chapter.content.find(
-          c => c.type === 'verse' && c.number === pick.v
-        );
-        if (!verse) throw new Error('Verse not found');
-
-        const text = verse.content
-          .filter(c => typeof c === 'string')
-          .join('');
-
-        card.classList.remove('loading');
-        textEl.textContent = text;
-        textEl.className = 'verse-text fade-in';
-        refEl.textContent = `${pick.n} ${pick.c}:${pick.v}`;
-        refEl.className = 'verse-ref fade-in';
-        document.getElementById('copyBtn').style.display = '';
-        document.getElementById('copyLabel').textContent = '복사';
-
-        // Show confetti effect
-        showConfetti();
+        // API 호출과 3초 타이머를 동시에 실행 → 둘 다 완료되면 진행
+        [data] = await Promise.all([
+          fetch(`${API}/${pick.b}/${pick.c}.json`).then(r => {
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            return r.json();
+          }),
+          new Promise(resolve => setTimeout(resolve, 3000))
+        ]);
       } catch (err) {
-        card.classList.remove('loading');
-        textEl.textContent = '말씀을 불러오지 못했습니다. 다시 시도해 주세요.';
-        refEl.textContent = '';
-        console.error(err);
+        fetchError = err;
+        // 3초가 안 됐을 수 있으므로 대기
+        await new Promise(resolve => setTimeout(resolve, 3000));
       }
+
+      // 인트로 오버레이 페이드아웃
+      const intro = document.getElementById('intro');
+      intro.classList.add('hide');
+      setTimeout(() => intro.remove(), 400);
+
+      const card = document.getElementById('card');
+      const textEl = document.getElementById('verseText');
+      const refEl  = document.getElementById('verseRef');
+
+      if (fetchError || !data) {
+        textEl.textContent = '말씀을 불러오지 못했습니다. 다시 시도해 주세요.';
+        card.classList.add('reveal');
+        console.error(fetchError);
+        return;
+      }
+
+      const verse = data.chapter.content.find(
+        c => c.type === 'verse' && c.number === pick.v
+      );
+      if (!verse) {
+        textEl.textContent = '말씀을 불러오지 못했습니다. 다시 시도해 주세요.';
+        card.classList.add('reveal');
+        return;
+      }
+
+      const text = verse.content
+        .filter(c => typeof c === 'string')
+        .join('');
+
+      textEl.textContent = text;
+      textEl.className = 'verse-text fade-in';
+      refEl.textContent = `${pick.n} ${pick.c}:${pick.v}`;
+      refEl.className = 'verse-ref fade-in';
+      document.getElementById('copyBtn').style.display = '';
+      document.getElementById('copyLabel').textContent = '복사';
+
+      // 카드 등장 + 폭죽!
+      card.classList.add('reveal');
+      showFireworks();
     }
 
-    // ── Confetti effect ──
+    // ── 폭죽 효과 ──
 
-    function showConfetti() {
+    function showFireworks() {
       const card = document.getElementById('card');
 
-      // Add sparkles
+      // 스파클
       const sparkle = document.createElement('div');
       sparkle.className = 'sparkle';
       card.appendChild(sparkle);
-      setTimeout(() => sparkle.remove(), 1500);
+      setTimeout(() => sparkle.remove(), 3500);
 
-      // Create confetti pieces
-      const colors = ['#a8a4f0', '#f0a8d8', '#a8f0b8', '#f0d8a8', '#a8d8f0'];
-      for (let i = 0; i < 30; i++) {
-        const confetti = document.createElement('div');
-        confetti.className = 'confetti';
-        confetti.style.left = Math.random() * 100 + '%';
-        confetti.style.top = '-10px';
-        confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
-        confetti.style.animationDelay = Math.random() * 0.3 + 's';
-        confetti.style.animationDuration = (Math.random() * 0.5 + 1) + 's';
-        card.appendChild(confetti);
-        setTimeout(() => confetti.remove(), 2000);
+      // 컨페티
+      const colors = ['#a8a4f0', '#f0a8d8', '#a8f0b8', '#f0d8a8', '#a8d8f0', '#f0a8a8', '#d8f0a8'];
+      for (let i = 0; i < 40; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti';
+        piece.style.left = Math.random() * 100 + '%';
+        piece.style.top = '-10px';
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDelay    = (Math.random() * 0.5) + 's';
+        piece.style.animationDuration = (Math.random() * 1 + 2.5) + 's';
+        card.appendChild(piece);
+        setTimeout(() => piece.remove(), 4000);
       }
     }
 
-    // ── Copy to clipboard ──
+    // ── 클립보드 복사 ──
 
     async function copyVerse() {
       const text = document.getElementById('verseText').textContent;
-      const ref = document.getElementById('verseRef').textContent;
+      const ref  = document.getElementById('verseRef').textContent;
       if (!text || !ref) return;
 
       try {
         await navigator.clipboard.writeText(`${text}\n- ${ref}`);
-        const btn = document.getElementById('copyBtn');
+        const btn   = document.getElementById('copyBtn');
         const label = document.getElementById('copyLabel');
         btn.classList.add('copied');
         label.textContent = '복사됨';
@@ -397,7 +474,6 @@
       }
     }
 
-    // ── Load random verse on page load ──
     loadRandomVerse();
   </script>
 </body>
