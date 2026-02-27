@@ -35,40 +35,8 @@
 
     .cross {
       font-size: 28px;
-      margin-bottom: 20px;
+      margin-bottom: 36px;
       opacity: 0.5;
-    }
-
-    /* Category buttons */
-    .categories {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 32px;
-    }
-
-    .cat-btn {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: rgba(255, 255, 255, 0.55);
-      font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
-      font-size: 0.8rem;
-      padding: 7px 16px;
-      border-radius: 50px;
-      cursor: pointer;
-      transition: all 0.25s ease;
-    }
-
-    .cat-btn:hover {
-      background: rgba(168, 164, 240, 0.15);
-      color: rgba(255, 255, 255, 0.8);
-    }
-
-    .cat-btn.active {
-      background: rgba(168, 164, 240, 0.2);
-      border-color: rgba(168, 164, 240, 0.5);
-      color: #c9c6f7;
     }
 
     .verse-text {
@@ -150,13 +118,6 @@
   <div class="container">
     <div class="card" id="card">
       <div class="cross">&#10013;</div>
-
-      <div class="categories" id="categories">
-        <button class="cat-btn" data-cat="comfort">위로가 필요할 때</button>
-        <button class="cat-btn" data-cat="faith">소망 / 사랑 / 믿음</button>
-        <button class="cat-btn" data-cat="wisdom">지혜 / 용기</button>
-        <button class="cat-btn" data-cat="praise">감사 / 찬양</button>
-      </div>
 
       <div class="verse-text" id="verseText"></div>
       <div class="verse-ref" id="verseRef"></div>
@@ -265,19 +226,18 @@
       ],
     };
 
-    // ── Category buttons ──
+    // ── Combine all verses into one array ──
 
-    document.getElementById('categories').addEventListener('click', e => {
-      const btn = e.target.closest('.cat-btn');
-      if (!btn) return;
-      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      loadRandomVerse(btn.dataset.cat);
-    });
+    const ALL_VERSES = [
+      ...VERSES.comfort,
+      ...VERSES.faith,
+      ...VERSES.wisdom,
+      ...VERSES.praise
+    ];
 
     // ── Fetch & display ──
 
-    async function loadRandomVerse(cat) {
+    async function loadRandomVerse() {
       const textEl = document.getElementById('verseText');
       const refEl = document.getElementById('verseRef');
       const card = document.getElementById('card');
@@ -287,8 +247,7 @@
       card.classList.add('loading');
 
       try {
-        const list = VERSES[cat];
-        const pick = list[Math.floor(Math.random() * list.length)];
+        const pick = ALL_VERSES[Math.floor(Math.random() * ALL_VERSES.length)];
 
         const res = await fetch(`${API}/${pick.b}/${pick.c}.json`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -339,6 +298,9 @@
         console.error(err);
       }
     }
+
+    // ── Load random verse on page load ──
+    loadRandomVerse();
   </script>
 </body>
 </html>
