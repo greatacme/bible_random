@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>오늘의 성경 말씀</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Noto Serif KR', 'Batang', Georgia, serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      color: #e8e6e3;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 640px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 48px 36px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .cross {
+      font-size: 28px;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+
+    /* Category buttons */
+    .categories {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 32px;
+    }
+
+    .cat-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: rgba(255, 255, 255, 0.55);
+      font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+      font-size: 0.8rem;
+      padding: 7px 16px;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .cat-btn:hover {
+      background: rgba(168, 164, 240, 0.15);
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .cat-btn.active {
+      background: rgba(168, 164, 240, 0.2);
+      border-color: rgba(168, 164, 240, 0.5);
+      color: #c9c6f7;
+    }
+
+    .verse-text {
+      font-size: 1.35rem;
+      line-height: 2;
+      letter-spacing: 0.02em;
+      margin-bottom: 28px;
+      min-height: 60px;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+    }
+
+    .verse-ref {
+      font-size: 0.95rem;
+      color: #a8a4f0;
+      font-style: italic;
+      margin-bottom: 36px;
+      min-height: 20px;
+    }
+
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: rgba(255, 255, 255, 0.45);
+      font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+      font-size: 0.8rem;
+      padding: 6px 16px;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 8px;
+    }
+
+    .copy-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .copy-btn.copied {
+      color: #a8f0b8;
+      border-color: rgba(168, 240, 184, 0.3);
+    }
+
+    .loading .verse-text::after {
+      content: '';
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-top-color: #a8a4f0;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in { animation: fadeIn 0.5s ease forwards; }
+
+    .footer {
+      margin-top: 24px;
+      font-size: 0.75rem;
+      opacity: 0.35;
+      font-family: sans-serif;
+    }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <div class="card" id="card">
+      <div class="cross">&#10013;</div>
+
+      <div class="categories" id="categories">
+        <button class="cat-btn" data-cat="comfort">위로가 필요할 때</button>
+        <button class="cat-btn" data-cat="faith">소망 / 사랑 / 믿음</button>
+        <button class="cat-btn" data-cat="wisdom">지혜 / 용기</button>
+        <button class="cat-btn" data-cat="praise">감사 / 찬양</button>
+      </div>
+
+      <div class="verse-text" id="verseText"></div>
+      <div class="verse-ref" id="verseRef"></div>
+      <button class="copy-btn" id="copyBtn" onclick="copyVerse()" style="display:none;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+        </svg>
+        <span id="copyLabel">복사</span>
+      </button>
+    </div>
+    <div class="footer">bible.helloao.org &middot; 개역한글 성경</div>
+  </div>
+
+  <script>
+    const API = 'https://bible.helloao.org/api/kor_old';
+
+    // ── Curated verse lists by category ──
+
+    const VERSES = {
+      comfort: [
+        {b:"PSA",n:"시편",c:23,v:4},
+        {b:"PSA",n:"시편",c:34,v:18},
+        {b:"PSA",n:"시편",c:46,v:1},
+        {b:"PSA",n:"시편",c:55,v:22},
+        {b:"PSA",n:"시편",c:91,v:2},
+        {b:"PSA",n:"시편",c:121,v:1},
+        {b:"PSA",n:"시편",c:147,v:3},
+        {b:"ISA",n:"이사야",c:41,v:10},
+        {b:"ISA",n:"이사야",c:43,v:2},
+        {b:"ISA",n:"이사야",c:49,v:13},
+        {b:"ISA",n:"이사야",c:53,v:5},
+        {b:"JER",n:"예레미야",c:29,v:11},
+        {b:"MAT",n:"마태복음",c:5,v:4},
+        {b:"MAT",n:"마태복음",c:11,v:28},
+        {b:"JHN",n:"요한복음",c:14,v:27},
+        {b:"ROM",n:"로마서",c:8,v:28},
+        {b:"ROM",n:"로마서",c:8,v:38},
+        {b:"2CO",n:"고린도후서",c:1,v:4},
+        {b:"2CO",n:"고린도후서",c:4,v:17},
+        {b:"PHP",n:"빌립보서",c:4,v:7},
+        {b:"1PE",n:"베드로전서",c:5,v:7},
+      ],
+      faith: [
+        {b:"PSA",n:"시편",c:27,v:14},
+        {b:"PSA",n:"시편",c:62,v:5},
+        {b:"PSA",n:"시편",c:37,v:4},
+        {b:"PRO",n:"잠언",c:3,v:5},
+        {b:"ISA",n:"이사야",c:40,v:31},
+        {b:"JHN",n:"요한복음",c:3,v:16},
+        {b:"JHN",n:"요한복음",c:13,v:34},
+        {b:"JHN",n:"요한복음",c:15,v:13},
+        {b:"ROM",n:"로마서",c:5,v:5},
+        {b:"ROM",n:"로마서",c:8,v:24},
+        {b:"ROM",n:"로마서",c:15,v:13},
+        {b:"1CO",n:"고린도전서",c:13,v:4},
+        {b:"1CO",n:"고린도전서",c:13,v:13},
+        {b:"GAL",n:"갈라디아서",c:5,v:22},
+        {b:"EPH",n:"에베소서",c:2,v:8},
+        {b:"HEB",n:"히브리서",c:11,v:1},
+        {b:"HEB",n:"히브리서",c:11,v:6},
+        {b:"1JN",n:"요한1서",c:4,v:8},
+        {b:"1JN",n:"요한1서",c:4,v:18},
+        {b:"1JN",n:"요한1서",c:4,v:19},
+      ],
+      wisdom: [
+        {b:"JOS",n:"여호수아",c:1,v:9},
+        {b:"PSA",n:"시편",c:27,v:1},
+        {b:"PSA",n:"시편",c:37,v:5},
+        {b:"PSA",n:"시편",c:46,v:10},
+        {b:"PSA",n:"시편",c:91,v:1},
+        {b:"PSA",n:"시편",c:119,v:105},
+        {b:"PRO",n:"잠언",c:1,v:7},
+        {b:"PRO",n:"잠언",c:2,v:6},
+        {b:"PRO",n:"잠언",c:3,v:13},
+        {b:"PRO",n:"잠언",c:4,v:7},
+        {b:"PRO",n:"잠언",c:16,v:3},
+        {b:"PRO",n:"잠언",c:16,v:9},
+        {b:"ECC",n:"전도서",c:3,v:1},
+        {b:"ISA",n:"이사야",c:43,v:1},
+        {b:"MIC",n:"미가",c:6,v:8},
+        {b:"JAS",n:"야고보서",c:1,v:5},
+        {b:"2TI",n:"디모데후서",c:1,v:7},
+        {b:"DEU",n:"신명기",c:31,v:6},
+        {b:"ISA",n:"이사야",c:30,v:21},
+      ],
+      praise: [
+        {b:"1CH",n:"역대상",c:16,v:34},
+        {b:"PSA",n:"시편",c:9,v:1},
+        {b:"PSA",n:"시편",c:100,v:4},
+        {b:"PSA",n:"시편",c:103,v:1},
+        {b:"PSA",n:"시편",c:103,v:2},
+        {b:"PSA",n:"시편",c:107,v:1},
+        {b:"PSA",n:"시편",c:118,v:24},
+        {b:"PSA",n:"시편",c:136,v:1},
+        {b:"PSA",n:"시편",c:145,v:3},
+        {b:"PSA",n:"시편",c:150,v:6},
+        {b:"PHP",n:"빌립보서",c:4,v:4},
+        {b:"COL",n:"골로새서",c:3,v:15},
+        {b:"COL",n:"골로새서",c:3,v:17},
+        {b:"1TH",n:"데살로니가전서",c:5,v:16},
+        {b:"1TH",n:"데살로니가전서",c:5,v:18},
+        {b:"EPH",n:"에베소서",c:5,v:20},
+        {b:"PSA",n:"시편",c:34,v:1},
+        {b:"PSA",n:"시편",c:95,v:1},
+      ],
+    };
+
+    // ── Category buttons ──
+
+    document.getElementById('categories').addEventListener('click', e => {
+      const btn = e.target.closest('.cat-btn');
+      if (!btn) return;
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      loadRandomVerse(btn.dataset.cat);
+    });
+
+    // ── Fetch & display ──
+
+    async function loadRandomVerse(cat) {
+      const textEl = document.getElementById('verseText');
+      const refEl = document.getElementById('verseRef');
+      const card = document.getElementById('card');
+
+      textEl.textContent = '';
+      refEl.textContent = '';
+      card.classList.add('loading');
+
+      try {
+        const list = VERSES[cat];
+        const pick = list[Math.floor(Math.random() * list.length)];
+
+        const res = await fetch(`${API}/${pick.b}/${pick.c}.json`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        const verse = data.chapter.content.find(
+          c => c.type === 'verse' && c.number === pick.v
+        );
+        if (!verse) throw new Error('Verse not found');
+
+        const text = verse.content
+          .filter(c => typeof c === 'string')
+          .join('');
+
+        card.classList.remove('loading');
+        textEl.textContent = text;
+        textEl.className = 'verse-text fade-in';
+        refEl.textContent = `${pick.n} ${pick.c}:${pick.v}`;
+        refEl.className = 'verse-ref fade-in';
+        document.getElementById('copyBtn').style.display = '';
+        document.getElementById('copyLabel').textContent = '복사';
+      } catch (err) {
+        card.classList.remove('loading');
+        textEl.textContent = '말씀을 불러오지 못했습니다. 다시 시도해 주세요.';
+        refEl.textContent = '';
+        console.error(err);
+      }
+    }
+
+    // ── Copy to clipboard ──
+
+    async function copyVerse() {
+      const text = document.getElementById('verseText').textContent;
+      const ref = document.getElementById('verseRef').textContent;
+      if (!text || !ref) return;
+
+      try {
+        await navigator.clipboard.writeText(`${text}\n- ${ref}`);
+        const btn = document.getElementById('copyBtn');
+        const label = document.getElementById('copyLabel');
+        btn.classList.add('copied');
+        label.textContent = '복사됨';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          label.textContent = '복사';
+        }, 2000);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>
